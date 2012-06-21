@@ -1,0 +1,15 @@
+{
+    "name": "Ostrovok.ru price alert",
+    "version": "1.0",
+    "description": "Расширение показывает цены на отели Ostrovok.ru на других сайтах, например, Booking.com, Expedia и другие, и дает возможность забронировать отель по наиболее низкой цене.",
+    "permissions": [
+        "tabs",
+        "http://ostrovok.ru/*"
+    ],
+    "browser_action": {
+        "default_title": "Ostrovok.ru price alert",
+        "default_icon": "img/icon.png",
+        "popup": "popup.html"
+    },
+    "options_page": "options.html"
+}
