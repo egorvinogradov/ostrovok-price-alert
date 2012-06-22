@@ -1,0 +1,55 @@
+<html>
+<head>
+<title></title>
+<script type="text/javascript" src="utils.js"></script>
+<script type="text/javascript" src="common.js"></script>
+</head>
+<body>
+
+<style type="text/css">
+
+#log {
+    border: 1px solid red;
+    margin: 10px;
+    font: 12px/18px Arial, sans-serif;
+    min-height: 18px;
+}
+
+.log_item {
+    border-top: 1px dotted red;
+    padding: 10px;
+}
+.log_item:first-child {
+    border-top: 0;
+}
+#clear {
+    margin-top: 10px;
+}
+#execute {
+    padding: 10px;
+}
+#execute_code {
+    display: block;
+    height: 100px;
+}
+#execute_button {
+    margin-top: 7px;
+}
+
+</style>
+
+
+<h1>Ostrovok.ru</h1>
+
+<button id="get_data">Get data</button>
+<div class="execute">
+    <textarea id="execute_code" placeholder="Insert code here"></textarea>
+    <button id="execute_button">Execute</button>
+</div>
+
+<div id="log"></div>
+
+<button id="clear">Clear</button>
+
+</body>
+</html>
