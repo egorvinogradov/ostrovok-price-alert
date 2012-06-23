@@ -1,4 +1,4 @@
-(function(){
+$(function(){
 
     var request = {
             data: {
@@ -14,6 +14,8 @@
         },
         handleData = function(data){
 
+            window.dddata = data;
+
             console.log('-- handle data', data);
 
             if ( data.status !== 'OK' ) {
@@ -27,6 +29,8 @@
                 rooms.forEach(function(room){
 
                     room.rooms_data.forEach(function(roomsData){
+
+                        console.log('- roomsData', roomsData);
 
                         var ostrovokRoom = {},
                             condition = false;
@@ -44,6 +48,7 @@
 
                         ostrovokRoom.free_cancellation = true;
                         ostrovokRoom.is_postpay = true;
+                        ostrovokRoom.name = roomsData.name;
 
                         // TODO: get cancellation policy
                         // TODO: get is_postpay
@@ -55,11 +60,16 @@
                             ostrovokRoom.ratio >= 0.8;
 
                         if ( condition ) {
+
+                            console.log('- condition true', ostrovokRoom, roomsData);
+
                             ostrovokData[room.booking_room_id] = {
                                 price: ostrovokRoom.price,
                                 is_postpay: ostrovokRoom.is_postpay
                             };
                         }
+
+                        console.log('- ostrovokRoom', ostrovokRoom);
 
                     });
 //                    if ( room.match ) {
@@ -96,15 +106,23 @@
         bookingData = [],
         ostrovokData = {};
 
-        $('link[rel="alternate"]').each(function(i, e){
+//        $('link[rel="alternate"]').each(function(i, e){
+//
+//            var element = $(e),
+//                url = element.attr('href').split('?')[0];
+//            request.data.links.push(url);
+//        });
 
-            var element = $(e),
-                url = element.attr('href').split('?')[0];
-            request.data.links.push(url);
-        });
 
 
-        $('[class^="room_loop_counter"]').not('.extendedRow').each(function(i, element){
+        var MOCK = 'http://pricealert.f.test.ostrovok.ru/api/v1/pricealert/?arrivalDate=2012-06-25&departureDate=2012-06-27&links=[%22/hotel/ru/metropol-moscow.html%22]&rooms=[{%22booking_room_id%22:4366801,%22name%22:%22%D0%9F%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D0%B9%20%D0%BB%D1%8E%D0%BA%D1%81%22}]&callback=handleData'
+
+
+
+        request.data.links.push($('link[rel="alternate"]').filter('[hreflang="en"]').attr('href').split('?')[0].replace(/\.en\./, '.ru.'));
+
+
+        $('[class^="room_loop_counter"]').not('.extendedRow').eq(4).each(function(i, element){
 
             var data = {},
                 els = {
@@ -119,18 +137,18 @@
             data.name = els.roomName.html();
             data.booking_room_id = els.roomNameWrapper.attr('id');
 
-            data.free_meal = els.policies.filter(':contains("БЕСПЛАТНАЯ отмена бронирования")');
-            data.free_cancellation = els.policies.filter(':contains("Завтрак включен")');
-            data.adults = parseFloat(els.adults.attr('class').split(' ')[1].replace(/max/, ''));
+//            data.free_meal = els.policies.filter(':contains("БЕСПЛАТНАЯ отмена бронирования")');
+//            data.free_cancellation = els.policies.filter(':contains("Завтрак включен")');
+//            data.adults = parseFloat(els.adults.attr('class').split(' ')[1].replace(/max/, ''));
 
             if ( data.name && data.booking_room_id ) {
                 request.data.rooms.push(data);
                 bookingData.push({
                     id: data.booking_room_id,
                     name: data.name,
-                    adults: data.adults,
-                    free_meal: !!data.free_meal,
-                    free_cancellation: !!data.free_cancellation
+                    adults: parseFloat(els.adults.attr('class').split(' ')[1].replace(/max/, '')),
+                    free_meal: !!els.policies.filter(':contains("БЕСПЛАТНАЯ отмена бронирования")'),
+                    free_cancellation: !!els.policies.filter(':contains("БЕСПЛАТНАЯ отмена бронирования")')
                 });
             }
         });
@@ -138,10 +156,20 @@
         //bookingData.rooms = request.data.rooms;
 
 
+        console.log('DATA1', request);
+        window.request1 = request;
+
+
         request.data.links = JSON.stringify(request.data.links);
         request.data.rooms = JSON.stringify(request.data.rooms);
 
-        $('body').append('<script type="text/javascript" src="' + $.param(request.data) + '"></script>');
+        window.lllink = request.url + '?' + $.param(request.data);
+
+        //$('body').append('<' + 'script type="text/javascript" src="' + request.url + '?' + $.param(request.data) + '"><' + '/script>');
+
+
+        $('body').append('<' + 'script type="text/javascript" src="' + MOCK + '"><' + '/script>');
+
 
 
         //$.ajax({
@@ -157,4 +185,4 @@
         window.handleData = handleData;
         window.request = request; // temporary for debug
 
-}());
+});

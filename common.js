@@ -6,7 +6,7 @@ var PriceAlert = {
             var OTA = this.getCurrentOTA(url, config);
             if ( OTA ) {
                 if ( options.newTab ) {
-                    this.insertJS(tabId, OTA.js);
+                    //this.insertJS(tabId, OTA.js);
                     this.insertCSS(tabId, OTA.css);
                 }
                 this.setIcon({ active: true });
