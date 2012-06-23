@@ -153,7 +153,7 @@
         request.data.links = JSON.stringify(request.data.links);
         request.data.rooms = JSON.stringify(request.data.rooms);
 
-        $('body').append('<script type="text/javascript" src="' + $.param(request.data) + '"></script>');
+        $('body').append('<' + 'script type="text/javascript" src="' + $.param(request.data) + '"><' + '/script>');
 
 
         //$.ajax({
