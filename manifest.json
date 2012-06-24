@@ -7,10 +7,8 @@
         "<all_urls>"
     ],
     "browser_action": {
-        "default_title": "Ostrovok.ru price alert",
-        "default_icon": "img/inactive.png",
-        "popup": "popup.html"
+        "default_title": "Ostrovok.ru Price Alert",
+        "default_icon": "img/inactive.png"
     },
-    "options_page": "options.html",
 	"background_page": "background.html"
 }

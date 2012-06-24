@@ -6,7 +6,7 @@ var $ = function(selector, parent){
     return res.length === 1
         ? res[0]
         : res;
-};
+},
 create = function(tag, attributes){
 
     var el = document.createElement(tag);

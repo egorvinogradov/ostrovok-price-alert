@@ -1,3 +1,5 @@
+console.log('zzzzzzzzzz');
+
 $(function(){
 
     var request = {
