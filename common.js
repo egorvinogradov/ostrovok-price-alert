@@ -1,6 +1,8 @@
 var PriceAlert = {
 
     init: function(config){
+
+        console.log('config', config);
         
         var onTabChanged = function(url, tabId, options){
             var OTA = this.getCurrentOTA(url, config);
@@ -40,9 +42,9 @@ var PriceAlert = {
         });
     },
     getCurrentOTA: function(url, config){
-        for ( var service in config ) {
-            if ( config[service].url.test(url) ) {
-                return config[service];
+        for ( var service in config.OTA ) {
+            if ( config.OTA[service].url.test(url) ) {
+                return config.OTA[service];
             }
         }
         return false;
@@ -54,13 +56,21 @@ var PriceAlert = {
         chrome.browserAction.setIcon({ path: path });
     },
     insertJS: function(tabId, path){
-        chrome.tabs.executeScript(tabId, { file: path }, function(){
-            console.log('Insert JS', tabId, path);
+        var code = '(' + this.runOstrovokScript.toString() + '(\'' + path + '\'))';
+        chrome.tabs.executeScript(tabId, { code: code }, function(){
+            console.log('Insert JS', tabId, path, code);
         });
     },
     insertCSS: function(tabId, path){
         chrome.tabs.insertCSS(tabId, { file: path }, function(){
             console.log('Insert CSS', tabId, path);
         });
+    },
+    runOstrovokScript: function(path){
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'chrome-extension://pjekielkfnenlllmghhbebnpccdhphfc/' + path;
+        document.body.appendChild(script);
+        console.log('Ostrovok.ru Price Alert', script);
     }
 };

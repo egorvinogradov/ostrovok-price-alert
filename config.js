@@ -1,5 +1,4 @@
 var Config = {
-
     OTA: {
         booking: {
             url: /booking\.com/,
@@ -16,6 +15,9 @@ var Config = {
             js: 'services/oktogo.js',
             css: 'services/oktogo.css'
         }
+    },
+    extension: {
+        id: 'pjekielkfnenlllmghhbebnpccdhphfc'
     },
     icon: {
         active: 'img/active.png',
