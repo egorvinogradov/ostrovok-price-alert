@@ -1,182 +1,285 @@
 (function(){
 
-    var request = {
+    var PriceAlert = {
+        request: {
             data: {
-                links: [],
-                rooms: [],
                 arrivalDate: booking.env.b_checkin_date,
                 departureDate: booking.env.b_checkout_date,
                 callback: 'handleData'
             },
             url: 'http://pricealert.f.test.ostrovok.ru/api/v1/pricealert/'
         },
-        handleData = function(data){
+        bookingData: [],
+        ostrovokData: {},
 
-            window.dddata = data;
+        init: function(){
 
-            console.log('-- handle data', data);
+            var bookingRooms = this.getBookingRooms(),
+                bookingLinks = this.getBookingLinks(),
+                requestUrl = this.getRequestUrl({
+                    links: bookingLinks,
+                    rooms: bookingRooms.requestParams
+                });
 
-            if ( data.status !== 'OK' ) {
-                console.log('room data fail', data);
-            }
+            this.bookingData = bookingRooms.roomData;
+            this.loadOstrovokRooms(requestUrl);
+
+        },
+        getBookingRooms: function(){
+
+            var elements = $('[class^="room_loop_counter"]').not('.extendedRow').eq(4),
+                requestParams = [],
+                roomData = [];
+
+            elements.each(function(i, element){
+
+                var room = {},
+                    els = {};
+
+                els.container = $(element);
+                els.name =      els.container.find('.togglelink');
+                els.wrapper =   els.name.parent();
+                els.policies =  els.container.find('.ratepolicy');
+                els.adults =    els.container.find('.roomDefaultUse img');
+
+                room.name =             els.name.html();
+                room.id =               els.wrapper.attr('id');
+                room.freeMeal =         !!els.policies.filter(':contains("Завтрак включен")');
+                room.freeCancellation = !!els.policies.filter(':contains("БЕСПЛАТНАЯ отмена бронирования")');
+                room.adults =           +els.adults.attr('class').split(' ')[1].replace(/max/, '');
+
+                if ( room.name && room.id ) {
+                    roomData.push(room);
+                    requestParams.push({
+                        name: room.name,
+                        booking_room_id: room.id
+                    });
+                }
+            });
+
+            return {
+                requestParams: requestParams,
+                roomData: roomData
+            };
+
+        },
+        getBookingLinks: function(){
+
+            var elements = $('link[rel="alternate"]').filter('[hreflang="en"]'),
+                links = [];
+
+            elements.each(function(i, element){
+                //var url = $(element).attr('href').split('?')[0];
+                var url = $(element).attr('href').split('?')[0].replace(/\.en\./, '.ru.');
+                links.push(url);
+            });
+
+            return links;
+
+        },
+        getRequestUrl: function(options){
+
+            var request = {
+                    arrivalDate:    this.request.arrivalDate,
+                    departureDate:  this.request.departureDate,
+                    callback:       this.request.callback,
+                    links:          JSON.stringify(options.links),
+                    rooms:          JSON.stringify(options.rooms)
+                };
+
+            return this.request.url + '?' + $.param(request);
+
+        },
+        loadOstrovokRooms: function(url){
+
+            var script = document.createElement('script'),
+                check = function(event){
+                    if ( event.type !== 'load' ) {
+                        console.log('Load error:', event);
+                        this.load(url);
+                    }
+                    else {
+                        console.log('Load complete:', event);
+                    }
+                };
+
+            script.src = url;
+            script.onload = script.onerror = $.proxy(check, this);
+            $('body').append(script);
+
+        },
+        handleData: function(data){
 
             var rooms = data.data;
 
-            bookingData.forEach(function(bookingRoom, i){
+            if ( data.status !== 'OK' && rooms ) {
+                console.log('No rooms found', data);
+                return;
+            }
+
+            this.bookingData.forEach(function(bookingRoom){
 
                 rooms.forEach(function(room){
 
-                    room.rooms_data.forEach(function(roomsData){
-
-                        console.log('- roomsData', roomsData);
+                    room.rooms_data.forEach(function(roomData){
 
                         var ostrovokRoom = {},
-                            condition = false;
+                            condition;
 
-                        for ( var i = 0, l = roomsData.room.value_adds.length; i < l; i++ ) {
-                            if ( roomsData.room.value_adds[i].code === 'has_meal' ) {
-                                ostrovokRoom.meal = true;
+                        for ( var i = 0, l = roomData.room.value_adds.length; i < l; i++ ) {
+                            if ( roomData.room.value_adds[i].code === 'has_meal' ) {
+                                ostrovokRoom.freeMeal = true;
                                 return;
                             }
                         }
 
-                        ostrovokRoom.adults = roomsData.adults;
-                        ostrovokRoom.price = roomsData.total_rate;
-                        ostrovokRoom.ratio = roomsData.ratio;
-
-                        ostrovokRoom.free_cancellation = true;
-                        ostrovokRoom.is_postpay = true;
-                        ostrovokRoom.name = roomsData.name;
-
-                        // TODO: get cancellation policy
-                        // TODO: get is_postpay
+                        ostrovokRoom.name = roomData.name;
+                        ostrovokRoom.price = roomData.total_rate;
+                        ostrovokRoom.ratio = roomData.ratio;
+                        ostrovokRoom.adults = roomData.adults;
+                        ostrovokRoom.freeCancellation = true;   // TODO: get cancellation policy
+                        ostrovokRoom.isPostPay = true;          // TODO: get payment policy
 
                         condition =
-                            bookingRoom.adults == ostrovokRoom.adults &&
-                            bookingRoom.meal == ostrovokRoom.meal &&
-                            bookingRoom.free_cancellation == ostrovokRoom.free_cancellation &&
+                            ostrovokRoom.adults == bookingRoom.adults &&
+                            ostrovokRoom.freeMeal == bookingRoom.freeMeal &&
+                            ostrovokRoom.freeCancellation == bookingRoom.freeCancellation &&
                             ostrovokRoom.ratio >= 0.8;
 
                         if ( condition ) {
-
-                            console.log('- condition true', ostrovokRoom, roomsData);
-
-                            ostrovokData[room.booking_room_id] = {
+                            this.ostrovokData[room.booking_room_id] = {
+                                name: ostrovokRoom.name,
                                 price: ostrovokRoom.price,
-                                is_postpay: ostrovokRoom.is_postpay
+                                ratio: ostrovokRoom.ratio,
+                                adults: ostrovokRoom.adults,
+                                freeMeal: ostrovokRoom.freeMeal,
+                                freeCancellation: ostrovokRoom.freeCancellation,
+                                isPostPay: ostrovokRoom.isPostPay
                             };
                         }
-
-                        console.log('- ostrovokRoom', ostrovokRoom);
-
                     });
-    //                    if ( room.match ) {
-    //                        // TODO: set price room.booking_room_id
-    //                        ostrovokData[room.booking_room_id]
-    //                        //isMatches = true;
-    //                    }
-    //                    else {
-    //                    }
                 });
-
             });
 
-            window.ostrovokData = ostrovokData;
-            console.log('ostrovok data', ostrovokData);
+            this.renderOstrovokRooms(this.ostrovokData);
 
         },
-    //            bookingData = [
-    //                {
-    //                    id: 58669,
-    //                    name: 'ergrtjk',
-    //                    adults: 2,
-    //                    free_meal: true,
-    //                    free_cancellation: true
-    //                },
-    //                {
-    //                    id: 58669,
-    //                    name: 'ergrtjk',
-    //                    adults: 2,
-    //                    free_meal: true,
-    //                    free_cancellation: true
-    //                }
-    //            ],
-        bookingData = [],
-        ostrovokData = {};
-
-//        $('link[rel="alternate"]').each(function(i, e){
-//
-//            var element = $(e),
-//                url = element.attr('href').split('?')[0];
-//            request.data.links.push(url);
-//        });
+        renderOstrovokRooms: function(rooms){
 
 
-
-    var MOCK = 'http://pricealert.f.test.ostrovok.ru/api/v1/pricealert/?arrivalDate=2012-06-25&departureDate=2012-06-27&links=[%22/hotel/ru/metropol-moscow.html%22]&rooms=[{%22booking_room_id%22:4366801,%22name%22:%22%D0%9F%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D0%B9%20%D0%BB%D1%8E%D0%BA%D1%81%22}]&callback=handleData'
-
+            console.log('render ostrovok rooms', rooms);
 
 
-    request.data.links.push($('link[rel="alternate"]').filter('[hreflang="en"]').attr('href').split('?')[0].replace(/\.en\./, '.ru.'));
-
-
-    $('[class^="room_loop_counter"]').not('.extendedRow').eq(4).each(function(i, element){
-
-        var data = {},
-            els = {
-                container: $(element)
-            };
-
-        els.roomName = els.container.find('.togglelink');
-        els.roomNameWrapper = els.roomName.parent();
-        els.policies = els.container.find('.ratepolicy');
-        els.adults = els.container.find('.roomDefaultUse img');
-
-        data.name = els.roomName.html();
-        data.booking_room_id = els.roomNameWrapper.attr('id');
-
-//            data.free_meal = els.policies.filter(':contains("БЕСПЛАТНАЯ отмена бронирования")');
-//            data.free_cancellation = els.policies.filter(':contains("Завтрак включен")');
-//            data.adults = parseFloat(els.adults.attr('class').split(' ')[1].replace(/max/, ''));
-
-        if ( data.name && data.booking_room_id ) {
-            request.data.rooms.push(data);
-            bookingData.push({
-                id: data.booking_room_id,
-                name: data.name,
-                adults: parseFloat(els.adults.attr('class').split(' ')[1].replace(/max/, '')),
-                free_meal: !!els.policies.filter(':contains("БЕСПЛАТНАЯ отмена бронирования")'),
-                free_cancellation: !!els.policies.filter(':contains("БЕСПЛАТНАЯ отмена бронирования")')
-            });
         }
-    });
-
-    //bookingData.rooms = request.data.rooms;
 
 
-    console.log('DATA1', request);
-    window.request1 = request;
+        
+    };
 
-
-    request.data.links = JSON.stringify(request.data.links);
-    request.data.rooms = JSON.stringify(request.data.rooms);
-
-    window.lllink = request.url + '?' + $.param(request.data);
-
-    //$('body').append('<' + 'script type="text/javascript" src="' + request.url + '?' + $.param(request.data) + '"><' + '/script>');
-
-
-    $('body').append('<' + 'script type="text/javascript" src="' + MOCK + '"><' + '/script>');
-
-    console.log('--- DATA:', request, '\n\n', $.param(request.data));
-
-    window.handleData = handleData;
-    window.request = request; // temporary for debug
+    window.PriceAlert = PriceAlert; // for debug
+    window.handleData = PriceAlert.handleData;
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+//    var request = {
+//            data: {
+//                links: [],
+//                rooms: [],
+//                arrivalDate: booking.env.b_checkin_date,
+//                departureDate: booking.env.b_checkout_date,
+//                callback: 'handleData'
+//            },
+//            url: 'http://pricealert.f.test.ostrovok.ru/api/v1/pricealert/'
+//        },
+//        handleData = function(data){
+//
+//
+//
+//        },
+//    //            bookingData = [
+//    //                {
+//    //                    id: 58669,
+//    //                    name: 'ergrtjk',
+//    //                    adults: 2,
+//    //                    free_meal: true,
+//    //                    free_cancellation: true
+//    //                },
+//    //                {
+//    //                    id: 58669,
+//    //                    name: 'ergrtjk',
+//    //                    adults: 2,
+//    //                    free_meal: true,
+//    //                    free_cancellation: true
+//    //                }
+//    //            ],
+//        bookingData = [],
+//        ostrovokData = {};
+//
+////        $('link[rel="alternate"]').each(function(i, e){
+////
+////            var element = $(e),
+////                url = element.attr('href').split('?')[0];
+////            request.data.links.push(url);
+////        });
+//
+//
+//
+//    var MOCK = 'http://pricealert.f.test.ostrovok.ru/api/v1/pricealert/?arrivalDate=2012-06-25&departureDate=2012-06-27&links=[%22/hotel/ru/metropol-moscow.html%22]&rooms=[{%22booking_room_id%22:4366801,%22name%22:%22%D0%9F%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D0%B9%20%D0%BB%D1%8E%D0%BA%D1%81%22}]&callback=handleData'
+//
+//
+//
+//    request.data.links.push($('link[rel="alternate"]').filter('[hreflang="en"]').attr('href').split('?')[0].replace(/\.en\./, '.ru.'));
+//
+//
+//
+//
+//    //bookingData.rooms = request.data.rooms;
+//
+//
+//    console.log('DATA1', request);
+//    window.request1 = request;
+//
+//
+//    request.data.links = JSON.stringify(request.data.links);
+//    request.data.rooms = JSON.stringify(request.data.rooms);
+//
+//    window.lllink = request.url + '?' + $.param(request.data);
+//
+//    //$('body').append('<' + 'script type="text/javascript" src="' + request.url + '?' + $.param(request.data) + '"><' + '/script>');
+//
+//
+//
+//    //window.script = $('<' + 'script type="text/javascript" src="' + MOCK + '"><' + '/script>');
+//
+//
+//
+//
+//
+//
+//    utils.load(MOCK);
+//
+//    //$('body').append('<' + 'script type="text/javascript" src="' + MOCK + '"><' + '/script>');
+//
+//    console.log('--- DATA:', request, '\n\n', $.param(request.data));
+//
+//
+//    window.handleData = handleData; // temporary for debug
+//    window.request = request; // temporary for debug
+//    window.utils = utils; // temporary for debug
+//    window.MOCK = MOCK; // temporary for debug
 
 }());
-
