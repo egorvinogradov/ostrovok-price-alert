@@ -71,6 +71,6 @@ var PriceAlert = {
         script.type = 'text/javascript';
         script.src = 'chrome-extension://pjekielkfnenlllmghhbebnpccdhphfc/' + path;
         document.body.appendChild(script);
-        console.log('Ostrovok.ru Price Alert', script);
+        console.log('Ostrovok.ru Price Alert: Initialization', script);
     }
 };
