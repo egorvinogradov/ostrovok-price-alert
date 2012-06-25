@@ -7,7 +7,8 @@
                 departureDate: booking.env.b_checkout_date,
                 callback: 'handleData'
             },
-            url: 'http://pricealert.f.test.ostrovok.ru/api/v1/pricealert/'
+            url: 'http://pricealert.f.test.ostrovok.ru/api/v1/pricealert/',
+            loadCount: 0
         },
         bookingData: [],
         ostrovokData: {},
@@ -69,8 +70,8 @@
                 links = [];
 
             elements.each(function(i, element){
-                //var url = $(element).attr('href').split('?')[0];
-                var url = $(element).attr('href').split('?')[0].replace(/\.en\./, '.ru.');
+                var url = $(element).attr('href').split('?')[0];
+                //var url = $(element).attr('href').split('?')[0].replace(/\.en\./, '.ru.');
                 links.push(url);
             });
 
@@ -80,9 +81,9 @@
         getRequestUrl: function(options){
 
             var request = {
-                    arrivalDate:    this.request.arrivalDate,
-                    departureDate:  this.request.departureDate,
-                    callback:       this.request.callback,
+                    arrivalDate:    this.request.data.arrivalDate,
+                    departureDate:  this.request.data.departureDate,
+                    callback:       this.request.data.callback,
                     links:          JSON.stringify(options.links),
                     rooms:          JSON.stringify(options.rooms)
                 };
@@ -92,11 +93,15 @@
         },
         loadOstrovokRooms: function(url){
 
+            var MOCK = 'http://pricealert.f.test.ostrovok.ru/api/v1/pricealert/?arrivalDate=2012-06-25&departureDate=2012-06-27&links=[%22/hotel/ru/metropol-moscow.html%22]&rooms=[{%22booking_room_id%22:4366801,%22name%22:%22%D0%9F%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D0%B9%20%D0%BB%D1%8E%D0%BA%D1%81%22}]&callback=handleData'
+
+            url = MOCK;
+
             var script = document.createElement('script'),
                 check = function(event){
-                    if ( event.type !== 'load' ) {
+                    if ( event.type !== 'load' && this.loadCount < 10 ) {
                         console.log('Load error:', event);
-                        this.load(url);
+                        this.loadOstrovokRooms(url);
                     }
                     else {
                         console.log('Load complete:', event);
@@ -105,17 +110,20 @@
 
             script.src = url;
             script.onload = script.onerror = $.proxy(check, this);
-            $('body').append(script);
+            document.body.appendChild(script);
+            this.request.loadCount += 1;
 
         },
         handleData: function(data){
 
             var rooms = data.data;
 
-            if ( data.status !== 'OK' && rooms ) {
+            if ( data.status !== 'OK' && !rooms ) {
                 console.log('No rooms found', data);
                 return;
             }
+
+            console.log('booking data 2', this.bookingData.slice(), rooms);
 
             this.bookingData.forEach(function(bookingRoom){
 
@@ -123,8 +131,15 @@
 
                     room.rooms_data.forEach(function(roomData){
 
-                        var ostrovokRoom = {},
-                            condition;
+                        var areRoomsEqual,
+                            ostrovokRoom = {
+                                name:               roomData.name,
+                                price:              roomData.total_rate,
+                                ratio:              roomData.ratio,
+                                adults:             roomData.adults,
+                                freeCancellation:   true,       // TODO: get cancellation policy
+                                isPostPay:          true        // TODO: get payment policy
+                            };
 
                         for ( var i = 0, l = roomData.room.value_adds.length; i < l; i++ ) {
                             if ( roomData.room.value_adds[i].code === 'has_meal' ) {
@@ -133,29 +148,14 @@
                             }
                         }
 
-                        ostrovokRoom.name = roomData.name;
-                        ostrovokRoom.price = roomData.total_rate;
-                        ostrovokRoom.ratio = roomData.ratio;
-                        ostrovokRoom.adults = roomData.adults;
-                        ostrovokRoom.freeCancellation = true;   // TODO: get cancellation policy
-                        ostrovokRoom.isPostPay = true;          // TODO: get payment policy
-
-                        condition =
-                            ostrovokRoom.adults == bookingRoom.adults &&
-                            ostrovokRoom.freeMeal == bookingRoom.freeMeal &&
-                            ostrovokRoom.freeCancellation == bookingRoom.freeCancellation &&
+                        areRoomsEqual =
+                            ostrovokRoom.adults             == bookingRoom.adults &&
+                            ostrovokRoom.freeMeal           == bookingRoom.freeMeal &&
+                            ostrovokRoom.freeCancellation   == bookingRoom.freeCancellation &&
                             ostrovokRoom.ratio >= 0.8;
 
-                        if ( condition ) {
-                            this.ostrovokData[room.booking_room_id] = {
-                                name: ostrovokRoom.name,
-                                price: ostrovokRoom.price,
-                                ratio: ostrovokRoom.ratio,
-                                adults: ostrovokRoom.adults,
-                                freeMeal: ostrovokRoom.freeMeal,
-                                freeCancellation: ostrovokRoom.freeCancellation,
-                                isPostPay: ostrovokRoom.isPostPay
-                            };
+                        if ( areRoomsEqual ) {
+                            this.ostrovokData[room.booking_room_id] = ostrovokRoom;
                         }
                     });
                 });
@@ -177,7 +177,8 @@
     };
 
     window.PriceAlert = PriceAlert; // for debug
-    window.handleData = PriceAlert.handleData;
+    window.handleData = $.proxy(PriceAlert.handleData, PriceAlert);
+    PriceAlert.init();
 
 
 
