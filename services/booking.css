@@ -1,81 +1,94 @@
-/*
-
-
-<div class="ostrovok__price-wrapper ostrovok_price_equal">
-    <div class="ostrovok__price">23718</div>
-    <div class="ostrovok__message">На Ostrovok.ru этот номер стоит столько же. Но мы ежедневно договариваемся
-        с новыми отелями о том, чтобы их цена была ниже.</div>
-    <a class="ostrovok__book-button"
-    href="#81402781"><b><i>Забронировать на Ostrovok.ru</i></b></a>
-</div>
-
-
-*/
-
-
 .roomDefaultUse {
     position: relative;
+    height: auto !important;
+}
+
+.ostrovok__price-block {
+    height: 42px;
 }
 
 .ostrovok__price-wrapper {
-    position: absolute;
-    z-index: 10000;
-    right: -6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .5);
-    border-radius: 4px;
-    border: 1px solid gray;
-    border: 1px solid rgba(0, 0, 0, .5);
-    background: #fff;
-    padding: 10px;
+    display: inline-block;
+    margin: 3px -2px 3px 0;
+    padding: 3px 5px;
+    border: 1px solid rgba(47, 77, 121, 0.8);
+    box-shadow: 0 0 1px rgba(0, 0, 0, .5);
+    border-radius: 3px;
 }
 
-.ostrovok__price-wrapper:hover {
+.ostrovok__price-wrapper * {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
 
+.ostrovok__additional {
+    display: none;
+    padding-bottom: 3px !important;
+}
+
+.ostrovok__price,
+.ostrovok__title {
+    text-decoration: none !important;
+    color: #003580 !important;
 }
 
 .ostrovok__price {
-    color: #2F4D79 !important;
-    font-size: 28px !important;
+    font-size: 13px !important;
     font-weight: bold !important;
 }
 
-.ostrovok__price-wrapper:hover .ostrovok__price {
-
+.ostrovok__title {
+    font-size: 11px !important;
+    font-weight: normal !important;
+    display: block;
 }
 
-.ostrovok_price_cheaper {
-
-}
-
-.ostrovok_price_equal {
-
-}
-
+.ostrovok_price_equal,
 .ostrovok_price_expensive {
+    border: 1px solid #d4d9dd;
+    box-shadow: 0 0 1px rgba(0,0,0,.2);
+}
 
+.ostrovok_price_equal .ostrovok__price,
+.ostrovok_price_equal .ostrovok__title,
+.ostrovok_price_expensive .ostrovok__price,
+.ostrovok_price_expensive .ostrovok__title {
+    color: #90979E !important;
+}
+
+.ostrovok__price-wrapper_hover {
+    position: absolute;
+    z-index: 10000;
+    left: -5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .5);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, .5);
+    background: #fff;
+    padding: 10px 10px 7px 10px;
+}
+
+.ostrovok__price-wrapper_hover .ostrovok__title {
+    display: none !important;
+}
+
+.ostrovok__price-wrapper_hover .ostrovok__price {
+    color: #333 !important;
+    font-size: 20px !important;
+    text-align: left !important;
+}
+
+.ostrovok__price-wrapper_hover .ostrovok__additional {
+    display: block;
 }
 
 .ostrovok__message {
-    display: none;
+    width: 255px;
     white-space: normal !important;
     color: #333 !important;
-    font: 11px/14px Arial, sans-serif !important;
-    width: 255px;
+    font-size: 11px !important;
+    line-height: 13px !important;
+    font-weight: normal !important;
     text-align: left !important;
-    padding-bottom: 7px !important;
-}
-
-.ostrovok__price-wrapper:hover .ostrovok__message {
-    display: block;
-
-}
-
-.ostrovok__button {
-    display: none;
-}
-
-.ostrovok__price-wrapper:hover .ostrovok__button {
-    display: inline-block;
+    padding: 2px 0 6px 0 !important;
 }
 
 .ostrovok__button {

@@ -234,7 +234,7 @@
                 },
                 orderedRooms = removeDuplicates(rooms);
 
-            console.log('Ostrovok.ru Price Alert: render prices from Ostrovok.ru \n', rooms, '\n', orderedRooms);
+            console.log('Ostrovok.ru Price Alert: Render prices from Ostrovok.ru \n', rooms, '\n', orderedRooms);
 
             orderedRooms.forEach(function(room){
 
@@ -243,18 +243,21 @@
                     bookingPrice = +bookingPriceBlock.html().split(' ')[1],
                     bookingCurrency = bookingPriceBlock.html().split(' ')[0],
                     messages = {
-                        cheaper:    'Этот номер дешевле на Ostrovok.ru.',
-                        equal:      'На Ostrovok.ru этот номер стоит столько же. Но мы ежедневно договариваемся с новыми отелями о том, чтобы их цена была ниже.',
+                        cheaper:    'Этот номер дешевле на Ostrovok.ru!',
+                        equal:      'На Ostrovok.ru этот номер стоит столько же.',
                         expensive:  'Упс! Мы упустили, что этот номер где-то продается дешевле. Но это не проблема &mdash; позвоните нам по 8 800 200-31-81, и мы дадим вам такую же цену!'
                     },
                     classes = {
                         cheaper:    'ostrovok_price_cheaper',
                         equal:      'ostrovok_price_equal',
-                        expensive:  'ostrovok_price_expensive'
+                        expensive:  'ostrovok_price_expensive',
+                        hover:      'ostrovok__price-wrapper_hover'
                     },
+                    block =         $('<div class="ostrovok__price-block"></div>'),
                     wrapper =       $('<div class="ostrovok__price-wrapper"></div>'),
-                    priceBlock =    $('<div class="ostrovok__price"></div>').html(room.price),
+                    additional =    $('<div class="ostrovok__additional"></div>'),
                     messageBlock =  $('<div class="ostrovok__message"></div>'),
+                    priceBlock =    $('<div class="ostrovok__price"></div>').html('RUB ' + room.price).append('<span class="ostrovok__title">ostrovok.ru</span>'),
                     bookButton =    $('<a class="ostrovok__button" href="#' + room.roomId + '"><b><i>Забронировать на Ostrovok.ru</i></b></a>');
 
                 if ( room.price < bookingPrice ) {
@@ -272,12 +275,22 @@
                     messageBlock.html(messages.expensive);
                 }
 
-                wrapper
-                    .append(priceBlock)
+                wrapper.hover(function(e){
+                    $(e.currentTarget).addClass(classes.hover);
+                }, function(e){
+                    $(e.currentTarget).removeClass(classes.hover);
+                });
+
+                additional
                     .append(messageBlock)
                     .append(bookButton);
 
-                element.append(wrapper);
+                wrapper
+                    .append(priceBlock)
+                    .append(additional);
+
+                block.append(wrapper);
+                element.append(block);
 
             });
 
