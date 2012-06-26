@@ -23,7 +23,10 @@
                 });
 
             this.bookingData = bookingRooms.roomData;
-            this.loadOstrovokRooms(requestUrl);
+
+            requestUrl.forEach(function(url){
+                this.loadOstrovokRooms(url);
+            }, this);
 
         },
         getBookingRooms: function(){
@@ -91,9 +94,9 @@
             var elements = $('link[rel="alternate"]'),
                 links = [];
 
-            elements.each(function(i, element){
-                var url = $(element).attr('href').split('?')[0];
-                //var url = $(element).attr('href').split('?')[0].replace(/\.en\./, '.ru.');
+            elements.filter('[hreflang="en"]').each(function(i, element){
+                //var url = $(element).attr('href').split('?')[0];
+                var url = $(element).attr('href').split('?')[0].replace(/\.en\./, '.');
                 links.push(url);
             });
 
@@ -102,32 +105,60 @@
         },
         getRequestUrl: function(options){
 
-            var request = {
+            var urls = [],
+                requestData = {
                     arrivalDate:    this.request.data.arrivalDate,
                     departureDate:  this.request.data.departureDate,
                     callback:       this.request.data.callback,
-                    links:          JSON.stringify(options.links),
-                    rooms:          JSON.stringify(options.rooms)
+                    links:          JSON.stringify(options.links)
+                },
+                param = function(obj){
+                    var params = [];
+                    for ( var a in obj ) {
+                        params.push(a + '=' + obj[a]);
+                    }
+                    return params.join('&');
                 };
 
-            return this.request.url + '?' + $.param(request);
+            for ( var i = 0, l = options.rooms.length; i < l; i+=2 ) {
+
+                var room1 = options.rooms[i],
+                    room2 = options.rooms[i + 1],
+                    rooms = [],
+                    request = {};
+
+                rooms.push(room1);
+                if ( room2 ) rooms.push(room2);
+
+                request = {
+                    arrivalDate:    requestData.arrivalDate,
+                    departureDate:  requestData.departureDate,
+                    callback:       requestData.callback,
+                    links:          requestData.links,
+                    rooms:          JSON.stringify(rooms)
+                };
+
+                urls.push(this.request.url + '?' + param(request));
+
+            }
+
+            window.requestUrls = urls;
+            return urls;
 
         },
         loadOstrovokRooms: function(url){
 
-            var MOCK = 'http://pricealert.f.test.ostrovok.ru/api/v1/pricealert/?arrivalDate=2012-08-01&departureDate=2012-08-02&links=[%22/hotel/ru/metropol-moscow.html%22]&rooms=[{%22booking_room_id%22:4366806,%22name%22:%22%D0%9F%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D0%B9%20%D0%BB%D1%8E%D0%BA%D1%81%22}]&callback=handleData'
-
-            url = MOCK;
-
-            if ( this.requestCount > 10 ) {
+            if ( this.request.requestCount >= 30 ) {
                 console.log('Ostrovok.ru Price Alert: Can\'t load rooms from Ostrovok.ru');
                 return;
             }
 
+            console.log('\n Ostrovok.ru Price Alert: Loading rooms from \n', url, '\n');
+
             var script = document.createElement('script'),
                 check = function(event){
                     if ( event.type !== 'load' ) {
-                        console.log('Ostrovok.ru Price Alert: Load error, trying again', event);
+                        console.log('Ostrovok.ru Price Alert: Load error, trying again', event, this.request.requestCount);
                         $('.ostrovok_rooms').remove();
                         this.loadOstrovokRooms(url);
                     }
@@ -146,7 +177,7 @@
 
                 var rooms = data.data;
 
-                if ( data.status !== 'OK' && !rooms ) {
+                if ( data.status !== 'OK' || !rooms ) {
                     console.log('Ostrovok.ru Price Alert: No rooms found', data);
                     return;
                 }
@@ -165,8 +196,6 @@
                     if ( bookingRoom.id != room.booking_room_id ) return;
 
                     room.rooms_data.forEach(function(roomData){
-
-                        //console.log('room data --- ', roomData);
 
                         var areRoomsEqual,
                             ostrovokRoom = {
@@ -191,11 +220,13 @@
                             ostrovokRoom.adults             == bookingRoom.adults &&
                             ostrovokRoom.freeMeal           == bookingRoom.freeMeal &&
                             ostrovokRoom.freeCancellation   == bookingRoom.freeCancellation &&
-                            ostrovokRoom.ratio              >= 0.8;
+                            ostrovokRoom.ratio              >= 0.7;
 
-//                        areRoomsEqual
-//                            ? console.log('ostrovokRoom', ostrovokRoom, roomData, bookingRoom, 'Equals')
-//                            : console.log('ostrovokRoom', ostrovokRoom, roomData, bookingRoom);
+                        if ( ostrovokRoom.ratio >= 0.7 ) {
+                            areRoomsEqual
+                                ? console.log('ostrovokRoom', ostrovokRoom, roomData, bookingRoom, 'Equals')
+                                : console.log('ostrovokRoom', ostrovokRoom, roomData, bookingRoom);
+                        }
 
                         if ( areRoomsEqual ) {
                             ostrovokRoom.roomId = bookingRoom.roomId;
