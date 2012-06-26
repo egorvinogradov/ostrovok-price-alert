@@ -15,6 +15,8 @@
 
         init: function(){
 
+            console.log('\nOstrovok.ru Price Alert: By the way, we\'re hiring http://ostrovok.ru/jobs/ \n');
+
             var bookingRooms = this.getBookingRooms(),
                 bookingLinks = this.getBookingLinks(),
                 requestUrl = this.getRequestUrl({
@@ -187,6 +189,8 @@
                 return;
             }
 
+            var ostrovokData = [];
+
             console.log('Ostrovok.ru Price Alert: Ostrovok.ru rooms loaded \n', rooms);
             
             this.bookingData.forEach(function(bookingRoom){
@@ -232,14 +236,14 @@
                             ostrovokRoom.roomId = bookingRoom.roomId;
                             ostrovokRoom.bookingPrice = bookingRoom.price;
                             ostrovokRoom.bookingCurrency = bookingRoom.currency;
-                            this.ostrovokData.push(ostrovokRoom);
+                            ostrovokData.push(ostrovokRoom);
                         }
 
                     }, this);
                 }, this);
             }, this);
 
-            this.renderOstrovokRooms(this.ostrovokData);
+            this.renderOstrovokRooms(ostrovokData);
 
         },
         renderOstrovokRooms: function(rooms){
@@ -324,8 +328,6 @@
                 element.append(block);
 
             });
-
-            console.log('Ostrovok.ru Price Alert: By the way, we\'re hiring http://ostrovok.ru/jobs/');
 
         }
 
