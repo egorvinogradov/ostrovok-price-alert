@@ -129,3 +129,43 @@ function getDates(){
         departureDate: booking.env.b_checkout_date
     }
 };
+
+
+// http://ostrovok.ru/api/v1/rooms/x863982519/?arrivalDate=2012-11-16&hotelId=863982519&departureDate=2012-11-17&room1_numberOfAdults=2&room1_numberOfChildren=0&_type=json&grouped=true&payment_choices=true
+
+
+
+var url = 'http://ostrovok.ru/api/v1/rooms/x863982519/';
+var data = {
+    arrivalDate: '2012-11-16',
+    departureDate: '2012-11-17',
+    hotelId: 863982519,
+    room1_numberOfAdults: 2,
+    room1_numberOfChildren: 0,
+    _type: 'json',
+    grouped: true,
+    payment_choices: true
+}
+
+$.ajax({
+    type: 'GET',
+    dataType: 'jsonp',
+    url: url,
+    data: data,
+    complete: function(){
+        console.log('>>> Complete', arguments);
+    }
+});
+
+
+
+
+function z(s){
+    console.log('{');
+    s.split('&').forEach(function(n){
+        var z = n.split('=');
+        console.log('    ', z[0], ':', z[1], ',');
+    });
+    console.log('}');
+}
+
