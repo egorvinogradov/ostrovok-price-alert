@@ -23,8 +23,7 @@ function getRoomEls(){
 };
 
 function getRoomData(config){
-    var roomEls = getRoomEls();
-    return roomEls.map(function(i, el){
+    return getRoomEls().map(function(i, el){
         var room = $(el);
         return {
             id:                 getRoomTypeId(room),
@@ -67,7 +66,7 @@ function getRoomPrice(el){
         .replace(/\,/, '.');
 };
 
-function getRoomCurrency(el. config){
+function getRoomCurrency(el, config){
     var cur = el
         .find('.roomPrice')
         .find('.click_change_currency')
@@ -77,8 +76,11 @@ function getRoomCurrency(el. config){
 };
 
 function getRoomName(el){
-    return el
-        .parent()
+    var tr = !el.is('.maintr')
+        ? el.prevAll('.maintr').first()
+        : el;
+    return tr
+        .find('.roomType')
         .find('.togglelink')
         .html();
 };
