@@ -1,0 +1,225 @@
+.roomDefaultUse {
+    position: relative;
+    height: auto !important;
+}
+
+.ostrovok__price-block {
+    height: 42px;
+}
+
+.ostrovok__price-wrapper {
+    display: inline-block;
+    margin: 3px -2px 3px 0;
+    padding: 3px 5px;
+    border: 1px solid rgba(47, 77, 121, 0.8);
+    box-shadow: 0 0 1px rgba(0, 0, 0, .5);
+    border-radius: 3px;
+}
+
+.ostrovok__price-wrapper * {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.ostrovok__additional {
+    display: none;
+    padding-bottom: 3px !important;
+}
+
+.ostrovok__price,
+.ostrovok__title {
+    text-decoration: none !important;
+    color: #003580 !important;
+}
+
+.ostrovok__price {
+    font-size: 13px !important;
+    font-weight: bold !important;
+}
+
+.ostrovok__title {
+    font-size: 11px !important;
+    font-weight: normal !important;
+    display: block;
+}
+
+.ostrovok_price_equal,
+.ostrovok_price_expensive {
+    border: 1px solid #d4d9dd;
+    box-shadow: 0 0 1px rgba(0,0,0,.2);
+}
+
+.ostrovok_price_equal .ostrovok__price,
+.ostrovok_price_equal .ostrovok__title,
+.ostrovok_price_expensive .ostrovok__price,
+.ostrovok_price_expensive .ostrovok__title {
+    color: #90979E !important;
+}
+
+.ostrovok__price-wrapper_hover {
+    position: absolute;
+    z-index: 10000;
+    left: -5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .5);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, .5);
+    background: #fff;
+    padding: 10px 10px 7px 10px;
+}
+
+.ostrovok__price-wrapper_hover .ostrovok__title {
+    display: none !important;
+}
+
+.ostrovok__price-wrapper_hover .ostrovok__price {
+    color: #333 !important;
+    font-size: 20px !important;
+    text-align: left !important;
+}
+
+.ostrovok__price-wrapper_hover .ostrovok__additional {
+    display: block;
+}
+
+.ostrovok__message {
+    width: 255px;
+    white-space: normal !important;
+    color: #333 !important;
+    font-size: 11px !important;
+    line-height: 13px !important;
+    font-weight: normal !important;
+    text-align: left !important;
+    padding: 2px 0 6px 0 !important;
+}
+
+.ostrovok__button {
+    position: relative;
+    white-space: nowrap;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 0;
+    padding: 0;
+    font-size: 13px;
+    background: rgba(0, 0, 0, .15);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .4);
+    -webkit-border-radius: 3px;
+       -moz-border-radius: 3px;
+            border-radius: 3px;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+            user-select: none;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0, .2),
+                        0 1px 0 rgba(255,255,255, 0.4);
+       -moz-box-shadow: inset 0 1px 1px rgba(0,0,0, .2),
+                        0 1px 0 rgba(255,255,255, 0.4);
+            box-shadow: inset 0 1px 1px rgba(0,0,0, .2),
+                        0 1px 0 rgba(255,255,255, 0.4);
+}
+
+.ostrovok__button:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.ostrovok__button::selection {
+    background: transparent;
+}
+
+.ostrovok__button:hover {
+    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, .4);
+       -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, .4);
+            box-shadow: 0 2px 2px rgba(0, 0, 0, .4);
+}
+
+.ostrovok__button:hover b {
+    -webkit-box-shadow: none;
+       -moz-box-shadow: none;
+            box-shadow: none;
+}
+
+.ostrovok__button:hover i {
+    background-color: #1766c4;
+    background-image: -webkit-linear-gradient(top, #2d81e2, #1766c4);
+    background-image: -moz-linear-gradient(top, #2d81e2, #1766c4);
+    background-image: -ms-linear-gradient(top, #2d81e2, #1766c4);
+    background-image: -o-linear-gradient(top, #2d81e2, #1766c4);
+    background-image: linear-gradient(top, #2d81e2, #1766c4);
+}
+
+.ostrovok__button:active {
+    -webkit-box-shadow: none;
+       -moz-box-shadow: none;
+            box-shadow: none;
+}
+
+.ostrovok__button:active b {
+    padding: 0;
+    background: none;
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, .4);
+       -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, .4);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, .4);
+}
+
+.ostrovok__button:active i {
+    line-height: 28px;
+    padding: 1px 11px;
+    -webkit-border-radius: 3px;
+       -moz-border-radius: 3px;
+            border-radius: 3px;
+    background-color: #0041aa;
+    background-image: -webkit-linear-gradient(top, #1158c9, #0041aa);
+    background-image: -moz-linear-gradient(top, #1158c9, #0041aa);
+    background-image: -ms-linear-gradient(top, #1158c9, #0041aa);
+    background-image: -o-linear-gradient(top, #1158c9, #0041aa);
+    background-image: linear-gradient(top, #1158c9, #0041aa);
+    -webkit-box-shadow: inset 0 1px 3px rgba(0,0,0, .6);
+       -moz-box-shadow: inset 0 1px 3px rgba(0,0,0, .6);
+            box-shadow: inset 0 1px 3px rgba(0,0,0, .6);
+}
+
+.ostrovok__button b {
+    display: inline-block;
+    font-weight: normal;
+    padding: 1px;
+    background-color: #383A3D;
+    background-image: -webkit-linear-gradient(top, #686b6e, #383a3d);
+    background-image: -moz-linear-gradient(top, #686b6e, #383a3d);
+    background-image: -ms-linear-gradient(top, #686b6e, #383a3d);
+    background-image: -o-linear-gradient(top, #686b6e, #383a3d);
+    background-image: linear-gradient(top, #686b6e, #383a3d);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+       -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+            box-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+    -webkit-border-radius: 3px;
+       -moz-border-radius: 3px;
+            border-radius: 3px;
+}
+
+.ostrovok__button i {
+    display: inline-block;
+    font-style: normal;
+    font-weight: bold;
+    height: 25px;
+    line-height: 26px;
+    padding: 0 10px;
+    -webkit-border-radius: 2px;
+       -moz-border-radius: 2px;
+            border-radius: 2px;
+    color: #fff;
+    background-color: #0058BD;
+    background-image: -webkit-linear-gradient(top, #1c77e1, #0058bd);
+    background-image: -moz-linear-gradient(top, #1c77e1, #0058bd);
+    background-image: -ms-linear-gradient(top, #1c77e1, #0058bd);
+    background-image: -o-linear-gradient(top, #1c77e1, #0058bd);
+    background-image: linear-gradient(top, #1c77e1, #0058bd);
+    -webkit-box-shadow: inset 0 2px 2px rgba(255, 255, 255, .5),
+                        inset 0 0 0 1px rgba(255, 255, 255, .3);
+       -moz-box-shadow: inset 0 2px 2px rgba(255, 255, 255, .5),
+                        inset 0 0 0 1px rgba(255, 255, 255, .3);
+            box-shadow: inset 0 2px 2px rgba(255, 255, 255, .5),
+                        inset 0 0 0 1px rgba(255, 255, 255, .3);
+}
