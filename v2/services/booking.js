@@ -135,7 +135,8 @@ function getDates(){
 
 
 
-var url = 'http://ostrovok.ru/api/v1/rooms/x863982519/';
+//var url = 'http://ostrovok.ru/api/v1/rooms/x863982519/';
+var url = 'http://127.0.0.1:5000/api/v1/rooms/x863982519/';
 var data = {
     arrivalDate: '2012-11-16',
     departureDate: '2012-11-17',
@@ -147,15 +148,18 @@ var data = {
     payment_choices: true
 }
 
-$.ajax({
-    type: 'GET',
-    dataType: 'jsonp',
-    url: url,
-    data: data,
-    complete: function(){
-        console.log('>>> Complete', arguments);
-    }
-});
+function makeRequest(){
+    $.ajax({
+        type: 'GET',
+        dataType: 'jsonp',
+        url: url,
+        data: data,
+        complete: function(){
+            console.log('>>> Complete', arguments);
+        }
+    });
+}
+
 
 
 
