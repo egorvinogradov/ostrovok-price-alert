@@ -2,44 +2,48 @@ var http = require('http');
 var url = require('url');
 
 var port = process.env.PORT || 5000;
-var proxy = function(request, responce){
+var proxy = function(request, response){
 
+    console.log('url', request.url);
+    
+    var chunks = [];
     var loaderOptions = {
         host: 'ostrovok.ru',
         port: 80,
-        path: '/api/v1/rooms/x863982519/' + url.parse(request.url).search,
+        path: url.parse(request.url).pathname + url.parse(request.url).search,
         method: 'GET'
     };
 
-    var loader = http.request(loaderOptions, function(res){
-        console.log('STATUS: ' + res.statusCode);
-        console.log('HEADERS: ' + JSON.stringify(res.headers));
-        res.setEncoding('utf8');
-        res.on('data', function(chunk){
-            console.log('BODY: ' + chunk);
-            closeConnection(chunk);
-        });
-    });
-
     var closeConnection = function(data){
-        responce.write(
-            '<h1>Test</h1>' +
-            '<hr>' +
-            'pathname: ' + requestPathname +
-            '<hr>' +
-            'data: ' + data
-        );
-        responce.end();
+        response.write(data);
+        response.end();
     };
 
-    responce.writeHead(200, {
-        'Content-Type': 'text/html; charset=utf-8',
+    response.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
         'Access-Control-Allow-Origin': '*'
     });
 
-    loader.on('error', function(e){
-        console.log('problem with request: ' + e.message);
+    var loader = http.request(loaderOptions, function(res){
+        console.log('response', res.statusCode, '\n', res.headers, '\n\n');
+        res.setEncoding('utf8');
+        res.on('data', function(chunk){
+            console.log('data', chunk, '\n\n');
+            chunks.push(chunk);
+        });
+        res.on('end', function(){
+            closeConnection(chunks.join(''));
+        });
     });
+
+    loader.on('error', function(e){
+        console.log('', e);
+        closeConnection({
+            status: 404
+        });
+    });
+
+    loader.end();
 };
 
 http.createServer(proxy).listen(port);
