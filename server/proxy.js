@@ -6,6 +6,7 @@ var proxy = function(request, response){
 
     console.log('url', request.url);
     
+    var headers;
     var chunks = [];
     var loaderOptions = {
         host: 'ostrovok.ru',
@@ -14,15 +15,11 @@ var proxy = function(request, response){
         method: 'GET'
     };
 
-    var closeConnection = function(data){
+    var closeConnection = function(headers, data){
+        response.writeHead(200, headers);
         response.write(data);
         response.end();
     };
-
-    response.writeHead(200, {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Access-Control-Allow-Origin': '*'
-    });
 
     var loader = http.request(loaderOptions, function(res){
         console.log('response', res.statusCode, '\n', res.headers, '\n\n');
@@ -30,14 +27,16 @@ var proxy = function(request, response){
         res.on('data', function(chunk){
             console.log('data', chunk, '\n\n');
             chunks.push(chunk);
+            headers = res.headers;
         });
         res.on('end', function(){
-            closeConnection(chunks.join(''));
+            headers['Access-Control-Allow-Origin'] = '*';
+            closeConnection(headers, chunks.join(''));
         });
     });
 
     loader.on('error', function(e){
-        console.log('', e);
+        console.log('error', e, '\n\n');
         closeConnection({
             status: 404
         });
