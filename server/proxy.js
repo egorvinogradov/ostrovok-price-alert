@@ -6,8 +6,10 @@ var proxy = function(request, response){
 
     console.log('url', request.url);
     
-    var headers;
     var chunks = [];
+    var headers = {
+        'Access-Control-Allow-Origin': '*'
+    };
     var loaderOptions = {
         host: 'ostrovok.ru',
         port: 80,
@@ -15,10 +17,16 @@ var proxy = function(request, response){
         method: 'GET'
     };
 
-    var closeConnection = function(headers, data){
-        response.writeHead(200, headers);
+    var closeConnection = function(statusCode, headers, data){
+        response.writeHead(statusCode, headers);
         response.write(data);
         response.end();
+    };
+
+    var addToObject = function(obj, params){
+        for ( var key in params ) {
+            obj[key] = params[key];
+        }
     };
 
     var loader = http.request(loaderOptions, function(res){
@@ -27,19 +35,18 @@ var proxy = function(request, response){
         res.on('data', function(chunk){
             console.log('data', chunk, '\n\n');
             chunks.push(chunk);
-            headers = res.headers;
+            addToObject(headers, res.headers);
         });
         res.on('end', function(){
-            headers['Access-Control-Allow-Origin'] = '*';
-            closeConnection(headers, chunks.join(''));
+            closeConnection(200, headers, chunks.join(''));
         });
     });
 
     loader.on('error', function(e){
         console.log('error', e, '\n\n');
-        closeConnection({
+        closeConnection(404, headers, JSON.stringify({
             status: 404
-        });
+        }));
     });
 
     loader.end();
