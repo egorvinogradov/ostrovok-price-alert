@@ -1,3 +1,6 @@
+console.log('--- RUN APP');
+
+
 var http = require('http');
 var url = require('url');
 
@@ -44,8 +47,8 @@ var proxy = function(request, response){
 
     loader.on('error', function(e){
         console.log('error', e, '\n\n');
-        closeConnection(404, headers, JSON.stringify({
-            status: 404
+        closeConnection(500, headers, JSON.stringify({
+            status: 500
         }));
     });
 
