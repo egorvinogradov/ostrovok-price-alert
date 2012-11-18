@@ -24,9 +24,9 @@ var proxy = function(request, response){
         response.end();
     };
 
-    var addToObject = function(obj, params){
-        for ( var key in params ) {
-            obj[key] = params[key];
+    var joinObjects = function(obj1, obj2){
+        for ( var key in obj2 ) {
+            obj1[key] = obj2[key];
         }
     };
 
@@ -36,7 +36,7 @@ var proxy = function(request, response){
         res.on('data', function(chunk){
             console.log('data', chunk, '\n\n');
             chunks.push(chunk);
-            addToObject(headers, res.headers);
+            joinObjects(headers, res.headers);
         });
         res.on('end', function(){
             closeConnection(200, headers, chunks.join(''));
