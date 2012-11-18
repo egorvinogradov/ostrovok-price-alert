@@ -1,7 +1,7 @@
 var http = require('http');
 var url = require('url');
 
-var port = process.env.PORT || 5000;
+var port = process.env.PORT || 80;
 var proxy = function(request, response){
 
     console.log('url', request.url);
