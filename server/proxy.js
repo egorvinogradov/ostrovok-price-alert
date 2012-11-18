@@ -1,6 +1,3 @@
-console.log('--- RUN APP');
-
-
 var http = require('http');
 var url = require('url');
 
@@ -11,7 +8,8 @@ var proxy = function(request, response){
     
     var chunks = [];
     var headers = {
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'X-Booking-AID, X-Booking-Pageview-Id, X-Booking-Session-Id' // TODO: find out how to allow all
     };
     var loaderOptions = {
         host: 'ostrovok.ru',
