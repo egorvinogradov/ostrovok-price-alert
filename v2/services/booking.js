@@ -9,6 +9,16 @@ var roomConfig = {
     }
 };
 
+var ostrovokAPIConfig = {
+    host: 'http://salty-dawn-9815.herokuapp.com',
+    hotels: {
+        url: '/api/site/multicomplete.json'
+    },
+    rooms: {
+        urlPrefix: '/api/v1/rooms/'
+    }
+};
+
 // function isRoomInList(room, list) {
 //     for (var i = 0, l = list.length; i < l; i++) {
 //         if (list[i].booking_room_id == room.id) {
@@ -123,11 +133,190 @@ function getRoomAdults(el){
         .replace(/max/, '');
 };
 
-function getDates(){
-    return {
-        arrivalDate: booking.env.b_checkin_date,
-        departureDate: booking.env.b_checkout_date
+/* hotel */
+
+// function getHotelDates(){
+//     return {
+//         arrivalDate: booking.env.b_checkin_date,
+//         departureDate: booking.env.b_checkout_date
+//     }
+// };
+
+function getHotelArrivalDate(){
+    return booking.env.b_checkin_date;
+};
+
+function getHotelDepartureDate(){
+    return booking.env.b_checkout_date;
+};
+
+function getHotelName(){
+    return booking.env.b_hotel_name;
+};
+
+function getHotelCity(){
+    return booking.env.sess_dest_fullname;
+};
+
+function getHotelCountry(){
+    return $('a[rel=v:url][href^=/country]').html()
+};
+
+// function getHotelAdults(){
+//     var el = $('.guests .search_summary_toggle_button');
+//     if ( el.length ) {
+//         return +el
+//             .html()
+//             .split(',')[0]
+//             .replace(/[^[0-9]/, '');
+//     }
+//     return 2;
+// };
+
+// function getHotelChildren(){
+//     var el = $('.guests .search_summary_toggle_button');
+//     if ( el.length ) {
+//         var children = el
+//             .html()
+//             .split(',')[1];
+//         if ( children ) {
+//             return +children.replace(/[^[0-9]/, '');
+//         }
+//         else {
+//             return 0;
+//         }
+//     }
+//     else {
+//         return 0;
+//     }
+// };
+
+
+function getHotelAdults(){
+    return booking.env.b_group[0].guests;
+};
+
+function getHotelChildren(){
+    return booking.env.b_group[0].children;
+};
+
+function getHotelChildrenAges(){
+    return $.map(booking.env.b_group[0].ages, function(children){
+        return children.age;
+    });
+};
+
+function getOstrovokHotelId(params){
+    $.ajax({
+        url: params.config.host + params.config.hotels.url,
+        data: {
+            query: params.hotel + ' ' + params.city
+        },
+        success: function(data){
+            if ( data.hotels.length ) {
+                var hotelId = +data
+                    .hotels[0]
+                    .hotel_uid;
+                params.success && params.success({
+                    hotelId: hotelId
+                });
+            }
+            else {
+                params.error && params.error({
+                    hotelId: null,
+                    errorData: {
+                        message: 'No hotels found'
+                    }
+                });
+            }
+        },
+        error: function(e){
+            params.error && params.error({
+                hotelId: null,
+                errorData: e
+            });
+        };
+    });
+};
+
+function getOstrovokRooms(params){
+    var requestParams = {
+        arrivalDate:            getHotelArrivalDate(),
+        departureDate:          getHotelDepartureDate(),
+        room1_numberOfAdults:   getHotelAdults(),
+        _type:                  'json'
+    });
+    var children = getHotelChildren();
+    var childrenAges = getHotelChildrenAges();
+    if ( children ) {
+        requestParams.room1_numberOfChildren = children;
+        $.each(childrenAges, function(i, age){
+            requestParams['room1_child' + ( i + 1 ) + 'Age'] = age;
+        });
     }
+
+    $.ajax({
+        url: params.config.rooms.urlPrefix + params.hotelId,
+        data: requestParams,
+        success: function(data){
+            if ( data.hotel && data.hotel.rooms && data.hotel.rooms.length ) {
+                params.success && params.success({
+                    rooms: data.hotel.rooms
+                });
+            }
+            else {
+                params.error && params.error({
+                    rooms: null,
+                    errorData: {
+                        message: 'No rooms found'
+                    }
+                });
+            }
+        },
+        error: function(e){
+            params.error && params.error({
+                rooms: null,
+                errorData: e
+            });
+        }
+    });
+};
+
+
+
+
+
+
+
+function init(){
+    var rooms = getRoomData(roomConfig);
+    if ( rooms.length ) {
+        getOstrovokHotelId({
+            config: ostrovokAPIConfig,
+            hotel:  getHotelName(),
+            city:   getHotelCity(),
+            success: function(data){
+                if ( hotelId ) {
+                    getOstrovokRooms({
+                        config: ostrovokAPIConfig,
+                        hotelId: data.hotelId,
+                        success: function(data){
+                            if ( data.rooms && data.rooms.length ) {
+                                console.log('--- ROOMS', data.hotel.rooms);
+                            }
+                        },
+                        error: function(e){
+                            console.error(e);
+                        }
+                    });
+                }
+            },
+            error: function(e){
+                console.error(e);
+            }
+        });
+    }
+    return rooms;
 };
 
 
