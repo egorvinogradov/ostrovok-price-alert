@@ -147,17 +147,26 @@ function getHotelCountry(){
 };
 
 function getHotelAdults(){
-    return booking.env.b_group[0].guests;
+    return booking.env.b_group.length
+        ? booking.env.b_group[0].guests
+        : 2;
 };
 
 function getHotelChildren(){
-    return booking.env.b_group[0].children;
+    return booking.env.b_group.length
+        ? booking.env.b_group[0].children
+        : 0;
 };
 
 function getHotelChildrenAges(){
-    return $.map(booking.env.b_group[0].ages, function(children){
-        return children.age;
-    });
+    if ( booking.env.b_group.length && booking.env.b_group[0].ages && booking.env.b_group[0].ages.length ) {
+        return $.map(booking.env.b_group[0].ages, function(children){
+            return children.age;
+        });
+    }
+    else {
+        return [];
+    }
 };
 
 /* ostrovok */
