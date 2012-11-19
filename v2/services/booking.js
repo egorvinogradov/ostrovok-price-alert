@@ -302,32 +302,72 @@ function init(callback){
 
 
 
-function compareNumbers(number1, number2){
+
+function getWordMatchValue(word1, word2){
 
 };
 
-function compareWords(number1, number2){
+function getNumberMatchValue(number1, number1){
+    
+};
+
+// function compareWords(word1, word2){
+//     var ostrovokRoomNameIndex = soundex.calc(ostrovokRoom.name);
+//     var bookingRoomNameIndex = soundex.calc(bookingRoom.name);
+    
+// };
+
+function reduce(arr, func){
+    var result;
+    $.each(arr, function(i, el){
+        result = '';
+    });
+
+jQuery.reduce = function(arr, valueInitial, fnReduce)
+{
+    jQuery.each( arr, function(i, value)
+    {
+        valueInitial = fnReduce.apply(value, [valueInitial, i, value]);
+    });
+    return valueInitial;
+}
 
 };
 
 function compareRoomNames(ostrovokRoom, bookingRoom){
-    var ROOM_NAME_MATCH = 0.7;
+
+    var ROOM_NAME_MIN_MATCH_VALUE = 0.7;
 
     var ostrovokRoomNameIndex = soundex.calc(ostrovokRoom.name);
     var bookingRoomNameIndex = soundex.calc(bookingRoom.name);
-    var matchValue = 0;
+    var matchValue = ostrovokRoomNameIndex.reduce(function(prevIndex, curIndex){
+        return prevIndex + curIndex;
+    });
 
 
-    for ( var i = 0, l = ostrovokRoomNameIndex.length; i < l; i++ ) {
-        var ostrovokWordIndex = ostrovokRoomNameIndex[i];
-        var bookingWordIndex = bookingRoomNameIndex[i];
-        if ( ostrovokWordIndex === bookingWordIndex ) {
-            matchValue += 1;
-        }
-        else {
-            matchValue = compareNumbers(ostrovokWordIndex, bookingWordIndex)
-        }
-    }
+
+
+// [0,1,2,3,4].reduce(function(previousValue, currentValue, index, array){
+//   return previousValue + currentValue;
+// });
+
+
+//     for ( var i = 0, l = ostrovokRoomNameIndex.length; i < l; i++ ) {
+
+//     }
+
+
+//     for ( var i = 0, l = ostrovokRoomNameIndex.length; i < l; i++ ) {
+//         var ostrovokWordIndex = ostrovokRoomNameIndex[i];
+//         var bookingWordIndex = bookingRoomNameIndex[i];
+
+//         if ( ostrovokWordIndex === bookingWordIndex ) {
+//             matchValue += 1;
+//         }
+//         else {
+//             matchValue = compareNumbers(ostrovokWordIndex, bookingWordIndex)
+//         }
+//     }
 
     // $.each(ostrovokRoomName, function(i, ostrovokWord){
     //     if 
