@@ -334,10 +334,10 @@ function compareRoomMeal(ostrovokRoom, bookingRoom){
 
 function compareRoomCancellation(ostrovokRoom, bookingRoom){
     var ostrovokRoomFreeCancellation = ostrovokRoom.cancellation_policy.title === 'Бесплатная отмена бронирования!';
-    if ( ostrovokRoomCancellation && bookingRoom.freeCancellation ) {
+    if ( ostrovokRoomFreeCancellation && bookingRoom.freeCancellation ) {
         return true;
     }
-    else if ( !ostrovokRoomCancellation && !bookingRoom.freeCancellation ) {
+    else if ( !ostrovokRoomFreeCancellation && !bookingRoom.freeCancellation ) {
         return true;
     }
     else {
