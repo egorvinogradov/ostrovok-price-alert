@@ -313,18 +313,18 @@ function compareRoomNames(ostrovokRoom, bookingRoom){
 };
 
 function compareRoomMeal(ostrovokRoom, bookingRoom){
-    var ostrovokRoomMeal = false;
+    var ostrovokRoomFreeMeal = false;
     for ( var i = 0, l = ostrovokRoom.value_adds; i < l; i++ ) {
         var value_adds = ostrovokRoom.value_adds[i];
         if ( value_adds.code === 'has_meal' ) {
-            ostrovokRoomMeal = true;
+            ostrovokRoomFreeMeal = true;
             break;
         }
     }
-    if ( ostrovokRoomMeal && bookingRoom.freeMeal ) {
+    if ( ostrovokRoomFreeMeal && bookingRoom.freeMeal ) {
         return true;
     }
-    else if ( !ostrovokRoomMeal && !bookingRoom.freeMeal ) {
+    else if ( !ostrovokRoomFreeMeal && !bookingRoom.freeMeal ) {
         return true;
     }
     else {
@@ -333,7 +333,7 @@ function compareRoomMeal(ostrovokRoom, bookingRoom){
 };
 
 function compareRoomCancellation(ostrovokRoom, bookingRoom){
-    var ostrovokRoomCancellation = ostrovokRoom.cancellation_policy.title === 'Деньги за отмену бронирования не возвращаются';
+    var ostrovokRoomFreeCancellation = ostrovokRoom.cancellation_policy.title === 'Бесплатная отмена бронирования!';
     if ( ostrovokRoomCancellation && bookingRoom.freeCancellation ) {
         return true;
     }
@@ -356,11 +356,11 @@ function compareRooms(ostrovokRoom, bookingRoom){
     return false;
 };
 
-function getBookingMatchingRoom(bookingRoom, ostrovokRooms){
+function getOstrovokMatchingRoom(bookingRoom, ostrovokRooms){
     for ( var i = 0, l = ostrovokRooms.length; i < l; i++ ) {
         var ostrovokRoom = ostrovokRooms[i];
         if ( compareRooms(ostrovokRoom, bookingRoom) ) {
-            return bookingRoom;
+            return ostrovokRoom;
         }
     }
 };
@@ -371,8 +371,10 @@ function renderOstrovokRoom(ostrovokRoom, bookingRoom){
 
 function render(bookingRooms, ostrovokRooms){
     $.each(bookingRooms, function(i, bookingRoom){
-        var matchingRoom = getBookingMatchingRoom(bookingRoom, ostrovokRooms);
-        renderOstrovokRoom(matchingRoom, bookingRoom);
+        var matchingRoom = getOstrovokMatchingRoom(bookingRoom, ostrovokRooms);
+        if ( matchingRoom ) {
+            renderOstrovokRoom(matchingRoom, bookingRoom);
+        }
     });
 };
 
