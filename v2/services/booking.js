@@ -306,8 +306,34 @@ function compareNumbers(number1, number2){
 
 };
 
+function compareWords(number1, number2){
+
+};
+
 function compareRoomNames(ostrovokRoom, bookingRoom){
     var ROOM_NAME_MATCH = 0.7;
+
+    var ostrovokRoomNameIndex = soundex.calc(ostrovokRoom.name);
+    var bookingRoomNameIndex = soundex.calc(bookingRoom.name);
+    var matchValue = 0;
+
+
+    for ( var i = 0, l = ostrovokRoomNameIndex.length; i < l; i++ ) {
+        var ostrovokWordIndex = ostrovokRoomNameIndex[i];
+        var bookingWordIndex = bookingRoomNameIndex[i];
+        if ( ostrovokWordIndex === bookingWordIndex ) {
+            matchValue += 1;
+        }
+        else {
+            matchValue = compareNumbers(ostrovokWordIndex, bookingWordIndex)
+        }
+    }
+
+    // $.each(ostrovokRoomName, function(i, ostrovokWord){
+    //     if 
+    // });
+
+
     // compareNumbers();
     return true;
 };
