@@ -235,7 +235,7 @@ function getOstrovokHotelId(params){
                 hotelId: null,
                 errorData: e
             });
-        };
+        }
     });
 };
 
@@ -245,7 +245,7 @@ function getOstrovokRooms(params){
         departureDate:          getHotelDepartureDate(),
         room1_numberOfAdults:   getHotelAdults(),
         _type:                  'json'
-    });
+    };
     var children = getHotelChildren();
     var childrenAges = getHotelChildrenAges();
     if ( children ) {
@@ -288,8 +288,9 @@ function getOstrovokRooms(params){
 
 
 
-function init(){
+function init(callback){
     var rooms = getRoomData(roomConfig);
+    console.log
     if ( rooms.length ) {
         getOstrovokHotelId({
             config: ostrovokAPIConfig,
@@ -302,7 +303,7 @@ function init(){
                         hotelId: data.hotelId,
                         success: function(data){
                             if ( data.rooms && data.rooms.length ) {
-                                console.log('--- ROOMS', data.hotel.rooms);
+                                callback && callback(data.hotel.rooms);
                             }
                         },
                         error: function(e){
@@ -318,6 +319,10 @@ function init(){
     }
     return rooms;
 };
+
+zcallback = function(rooms){
+    console.log('--- ROOMS', rooms);
+}
 
 
 // http://ostrovok.ru/api/v1/rooms/x863982519/?arrivalDate=2012-11-16&hotelId=863982519&departureDate=2012-11-17&room1_numberOfAdults=2&room1_numberOfChildren=0&_type=json&grouped=true&payment_choices=true
