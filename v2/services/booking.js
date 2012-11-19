@@ -270,28 +270,101 @@ function init(callback){
 
 /* rendering */
 
+
+
+/*
+
+        freeMeal: 'Деньги за отмену бронирования не возвращаются',
+                        "value_adds": [
+                    {
+                        "code": "has_wifi_access", 
+                        "show_icon": true, 
+                        "description": "Бесплатный беспроводной интернет в номере "
+                    }, 
+                    {
+                        "code": "has_meal", 
+                        "show_icon": true, 
+                        "description": "Завтрак \"шведский стол\""
+                    }
+                ], 
+
+
+*/
+
+
+
 function compareNumbers(number1, number2){
-    
-};
-
-function compareRoomNames(name1, name2){
 
 };
 
-function compareRooms(room1, room2){
-
+function compareRoomNames(ostrovokRoom, bookingRoom){
+    var ROOM_NAME_MATCH = 0.7;
+    // compareNumbers();
+    return true;
 };
 
-function getBookingMatchingRoom(bookingRooms, ostrovokRooms){
-
+function compareRoomMeal(ostrovokRoom, bookingRoom){
+    var ostrovokRoomMeal = false;
+    for ( var i = 0, l = ostrovokRoom.value_adds; i < l; i++ ) {
+        var value_adds = ostrovokRoom.value_adds[i];
+        if ( value_adds.code === 'has_meal' ) {
+            ostrovokRoomMeal = true;
+            break;
+        }
+    }
+    if ( ostrovokRoomMeal && bookingRoom.freeMeal ) {
+        return true;
+    }
+    else if ( !ostrovokRoomMeal && !bookingRoom.freeMeal ) {
+        return true;
+    }
+    else {
+        return false;
+    }
 };
 
-function renderPopup(room){
+function compareRoomCancellation(ostrovokRoom, bookingRoom){
+    var ostrovokRoomCancellation = ostrovokRoom.cancellation_policy.title === 'Деньги за отмену бронирования не возвращаются';
+    if ( ostrovokRoomCancellation && bookingRoom.freeCancellation ) {
+        return true;
+    }
+    else if ( !ostrovokRoomCancellation && !bookingRoom.freeCancellation ) {
+        return true;
+    }
+    else {
+        return false;
+    }
+};
 
+function compareRooms(ostrovokRoom, bookingRoom){
+    if (
+        compareRoomNames(ostrovokRoom, bookingRoom) &&
+        compareRoomMeal(ostrovokRoom, bookingRoom) &&
+        compareRoomCancellation(ostrovokRoom, bookingRoom)
+    ) {
+        return true;
+    }
+    return false;
+};
+
+function getBookingMatchingRoom(bookingRoom, ostrovokRooms){
+    for ( var i = 0, l = ostrovokRooms.length; i < l; i++ ) {
+        var ostrovokRoom = ostrovokRooms[i];
+        if ( compareRooms(ostrovokRoom, bookingRoom) ) {
+            return bookingRoom;
+        }
+    }
+};
+
+function renderOstrovokRoom(ostrovokRoom, bookingRoom){
+    console.log('>>> RENDER', ostrovokRoom, 'TO', bookingRoom);
 };
 
 function render(bookingRooms, ostrovokRooms){
-
+    $.each(bookingRooms, function(i, bookingRoom){
+        var matchingRoom = getBookingMatchingRoom(bookingRoom, ostrovokRooms);
+        renderOstrovokRoom(matchingRoom, bookingRoom);
+    });
 };
 
 /* / rendering */
